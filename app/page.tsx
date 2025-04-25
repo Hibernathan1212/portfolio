@@ -245,7 +245,7 @@ export default function Home() {
               <span className="inline-block text-s tracking-widest text-zinc-500 mb-4">ABOUT</span>
               <h2 className="text-5xl md:text-5xl font-light tracking-wide mb-8">Student Developer from Chiang Mai</h2>
                 <p className="text-zinc-400 leading-relaxed">
-                  I'm a 17-year-old student with a passion for technology, science, and the arts. From teaching myself 
+                  I'm a 17-year-old student with a passion for technology, science, swimming, and music. From teaching myself 
                   mathematics and physics to diving into computer science and programming, I've always 
                   been driven by curiosity and the desire to create and learn. Beyond coding, I enjoy listening to and composing music, 
                   as well as compete as a regional swimmer in Thailand. 
