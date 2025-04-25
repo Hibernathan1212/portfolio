@@ -379,7 +379,7 @@ export default function NotesPage() {
     unit: string
     resource: string
   } | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
 
   // Initialize expanded state
@@ -572,7 +572,7 @@ export default function NotesPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <h1 className="text-3xl font-light mb-4">Notes</h1>
+              <h1 className="text-3xl font-light mb-4 mt-16">Notes</h1>
               <p className="text-zinc-400">
               A compilation of notes over the 2 years of IBDP. Feel free to use and refer to them (but I wouldn't recommend using them for anything more than just reference). Hope this helps.
               </p>

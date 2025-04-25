@@ -321,7 +321,7 @@ export default function ExtracurricularsPage() {
 
             <div className="order-1 md:order-2">
               <p className="text-zinc-400 leading-relaxed mb-6">
-                As Student Council President for the 2022-2023 academic year, I've had the opportunity to develop
+                As Student Council President for the 2025-2026 academic year, I've had the opportunity to develop
                 leadership skills while representing student interests to the administration.
               </p>
 

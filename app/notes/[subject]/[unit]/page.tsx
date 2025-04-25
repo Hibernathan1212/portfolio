@@ -25,7 +25,7 @@ export default function UnitPage({
 
   const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({})
   const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>({})
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const router = useRouter()
 

@@ -14,7 +14,7 @@ export default function SubjectPage({ params }: { params: Promise<{ subject: str
   
   const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({})
   const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>({})
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const router = useRouter()
 

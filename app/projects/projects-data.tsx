@@ -10,10 +10,10 @@ export const projects = [
     overview: "A brief description of your first project and what technologies you used.",
     technologies: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.",
-    image: "/logos/cpp.svg",
+    image: "",
     source: "https://github.com/hibernathan1212",
     demoLink: "",
-    additionalImages: ["/logos/c.svg", "/logos/cpp.svg"]
+    additionalImages: []
   },
   {
     id: 2,

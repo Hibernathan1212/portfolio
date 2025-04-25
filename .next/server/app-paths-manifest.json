@@ -1,7 +1,3 @@
 {
-  "/extracurriculars/page": "app/extracurriculars/page.js",
-  "/about/page": "app/about/page.js",
-  "/notes/page": "app/notes/page.js",
-  "/notes/[subject]/[unit]/[resource]/page": "app/notes/[subject]/[unit]/[resource]/page.js",
   "/page": "app/page.js"
 }

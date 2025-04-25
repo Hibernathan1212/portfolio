@@ -35,13 +35,17 @@ export default function ParallaxText({ children, baseVelocity = 100 }: ParallaxP
   useAnimationFrame((t, delta) => {
     let moveBy = directionFactor.current * baseVelocity * (delta / 1000)
 
-    if (velocityFactor.get() < 0) {
-      directionFactor.current = -1
-    } else if (velocityFactor.get() > 0) {
-      directionFactor.current = 1
-    }
+    const isMobile = window.innerWidth <= 768 // You can adjust the breakpoint as needed
 
-    moveBy += directionFactor.current * moveBy * velocityFactor.get()
+    if (!isMobile) {
+      if (velocityFactor.get() < 0) {
+      directionFactor.current = -2
+      } else if (velocityFactor.get() > 0) {
+      directionFactor.current = 2
+      }
+
+      moveBy += directionFactor.current * moveBy * velocityFactor.get() / 2
+    }
 
     baseX.set(baseX.get() + moveBy)
   })
@@ -49,7 +53,7 @@ export default function ParallaxText({ children, baseVelocity = 100 }: ParallaxP
   return (
     <div className="overflow-hidden whitespace-nowrap flex flex-nowrap m-0 py-6">
       <motion.div
-        className="text-5xl md:text-7xl font-light tracking-widest text-white/15 flex whitespace-nowrap flex-nowrap"
+        className="text-3xl md:text-7xl font-light tracking-widest text-white/15 flex whitespace-nowrap flex-nowrap"
         style={{ x }}
       >
         <span className="block mr-6">{children}</span>
@@ -60,4 +64,3 @@ export default function ParallaxText({ children, baseVelocity = 100 }: ParallaxP
     </div>
   )
 }
-

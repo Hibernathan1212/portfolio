@@ -152,57 +152,57 @@ export default function Home() {
           className="container relative z-10 px-4 mx-auto text-center"
         >
           {/* <motion.h1
-            initial={{ letterSpacing: "0.2em", opacity: 0 }}
-            animate={{ letterSpacing: "0.1em", opacity: 1 }}
-            transition={{ duration: 2, ease: "easeInOut" }}
-            className="text-7xl md:text-9xl font-light tracking-widest mb-12"
+        initial={{ letterSpacing: "0.2em", opacity: 0 }}
+        animate={{ letterSpacing: "0.1em", opacity: 1 }}
+        transition={{ duration: 2, ease: "easeInOut" }}
+        className="text-7xl md:text-9xl font-light tracking-widest mb-12"
           >
-            NATHAN NEWTON THURBER
+        NATHAN NEWTON THURBER
           </motion.h1> */}
 
           <motion.h1 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 2, ease: "easeInOut" }}
-          className="name-animation text-8xl md:text-8xl font- tracking-widest mb-12">
-            NATHAN NEWTON THURBER
+          className="name-animation text-5xl md:text-8xl font- tracking-widest mb-12">
+        NATHAN NEWTON THURBER
           </motion.h1>
 
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className="flex flex-col items-center space-y-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 1 }}
+        className="flex flex-col items-center space-y-8"
           >
-            <p className="text-lg md:text-xl text-zinc-400 max-w-md">
-              Developer • Musician • Swimmer
-              <br />
-              Based in Chiang Mai
-            </p>
+        <p className="text-lg md:text-xl text-zinc-400 max-w-md">
+          Developer • Musician • Swimmer
+          <br />
+          Based in Chiang Mai
+        </p>
 
-            <div className="flex flex-wrap justify-center gap-6">
-              <Link
-                href="/projects"
-                className="group relative overflow-hidden px-6 py-3 border border-white/10 rounded-full hover:border-white/30 transition-colors duration-300"
-              >
-                <span className="relative z-10 text-sm font-light tracking-wider flex items-center">
-                  View Projects{" "}
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </span>
-                <span className="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
-              </Link>
+        <div className="flex flex-wrap justify-center gap-6">
+          <Link
+            href="/projects"
+            className="group relative overflow-hidden px-6 py-3 border border-white/10 rounded-full hover:border-white/30 transition-colors duration-300"
+          >
+            <span className="relative z-10 text-sm font-light tracking-wider flex items-center">
+          View Projects{" "}
+          <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </span>
+            <span className="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
+          </Link>
 
-              <Link
-                href="/about"
-                className="group relative overflow-hidden px-6 py-3 border border-white/10 rounded-full hover:border-white/30 transition-colors duration-300"
-              >
-                <span className="relative z-10 text-sm font-light tracking-wider">About Me</span>
-                <span className="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
-              </Link>
-            </div>
-            <div className="flex flex-wrap justify-center gap-6">
-              <p className="text-sm md:text-lg text-zinc-400 ">This website is still a work in progress is not yet complete</p>
-            </div>
+          <Link
+            href="/about"
+            className="group relative overflow-hidden px-6 py-3 border border-white/10 rounded-full hover:border-white/30 transition-colors duration-300"
+          >
+            <span className="relative z-10 text-sm font-light tracking-wider">About Me</span>
+            <span className="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
+          </Link>
+        </div>
+        <div className="flex flex-wrap justify-center gap-6">
+          <p className="text-sm md:text-lg text-zinc-400 ">This website is still a work in progress</p>
+        </div>
           </motion.div>
         </motion.div>
 
@@ -213,22 +213,22 @@ export default function Home() {
           className="absolute bottom-12 left-0 right-0 flex justify-center"
         >
           <div className="flex flex-col items-center">
-            <span className="text-s text-zinc-500 mb-2 tracking-widest">SCROLL</span>
-            <div className="w-[1px] h-12 bg-gradient-to-b from-white/0 via-white/20 to-white/0">
-              <motion.div
-                initial={{ y: 0 }}
-                animate={{ y: [0, 30, 0] }}
-                transition={{ repeat: Number.POSITIVE_INFINITY, duration: 2, ease: "easeInOut" }}
-                className="w-full h-4 bg-white/30"
-              />
-            </div>
+        <span className="text-s text-zinc-500 mb-2 tracking-widest">SCROLL</span>
+        <div className="w-[1px] h-12 bg-gradient-to-b from-white/0 via-white/20 to-white/0">
+          <motion.div
+            initial={{ y: 0 }}
+            animate={{ y: [0, 30, 0] }}
+            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 2, ease: "easeInOut" }}
+            className="w-full h-4 bg-white/30"
+          />
+        </div>
           </div>
         </motion.div>
       </section>
 
       {/* Marquee Section */}
       <section className="py-12 bg-[#080808]">
-        <ParallaxText baseVelocity={-2}>DEVELOPER • MUSICIAN • STUDENT • SWIMMER • LEARNER • RESEARCHERLEADER • STUDENT COUNCIL PRESIDENT • MAKER • CLUB PRESIDENT • DESIGNER • </ParallaxText>
+        <ParallaxText baseVelocity={-1}>DEVELOPER • MUSICIAN • STUDENT • SWIMMER • LEARNER • RESEARCHER • LEADER • STUDENT COUNCIL PRESIDENT • MAKER • CLUB PRESIDENT • DESIGNER • </ParallaxText>
       </section>
 
       {/* About Preview Section */}

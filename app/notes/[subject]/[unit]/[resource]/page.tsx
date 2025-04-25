@@ -22,7 +22,7 @@ export default function NotePage({ params }: { params: Promise<{ subject: string
   const { subject, unit, resource } = React.use(params)
 
   const [isBookmarked, setIsBookmarked] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({})
   const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>({})
   const [searchQuery, setSearchQuery] = useState("")

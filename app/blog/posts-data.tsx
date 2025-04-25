@@ -4,8 +4,8 @@ import { JSX } from "react"
 export const posts = [
   {
     id: 1,
-    title: "My Journey into Web Development",
-    excerpt: "Exploring the connection between music and programming productivity.",
+    title: "Mac Apps I Use Daily",
+    excerpt: "A collection of all the utility mac apps I use regularly.",
     date: "May 15, 2023",
     category: "Coding",
     content: `
@@ -38,32 +38,8 @@ export const posts = [
     },
     {
       id: 2,
-      title: "The Music That Inspires My Coding",
-      excerpt: "Exploring the connection between music and programming productivity.",
-      date: "April 22, 2023",
-      category: "Music",
-      content: `[nothing yet]`,
-    },
-    {
-      id: 3,
-      title: "Photography Tips for Beginners",
-      excerpt: "Simple techniques I've learned to improve my photography skills.",
-      date: "March 10, 2023",
-      category: "Photography",
-      content: `[nothing yet]`,
-    },
-    {
-      id: 4,
-      title: "My Experience as Student Council President",
-      excerpt: "Leadership lessons and challenges from my role in student government.",
-      date: "February 28, 2023",
-      category: "School",
-      content: `[nothing yet]`,
-    },
-    {
-      id: 5,
-      title: "Living in Chiang Mai as a Student",
-      excerpt: "What it's like growing up and studying in this beautiful city.",
+      title: "How I Learned to Code",
+      excerpt: "The journey I took in self teaching my self programming, the lessons I've learned, and the mistakes I've made.",
       date: "January 15, 2023",
       category: "Lifestyle",
       content: `[nothing yet]`,
