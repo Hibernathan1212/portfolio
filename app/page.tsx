@@ -126,7 +126,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden">      
+    <div ref={containerRef} className="bg-[#0a0a0a] text-white overflow-hidden">      
       {/* Custom cursor blur */}
       <motion.div
         animate={{
@@ -142,7 +142,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="h-screen bg-[#080808] flex items-center justify-center">
         <motion.div style={{ opacity, scale }} className="absolute inset-0 z-0">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-purple-500/10 blur-[150px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(800px,80vw)] h-[min(800px,80vw)] rounded-full bg-purple-500/10 blur-[150px]" />
         </motion.div>
 
         <motion.div
@@ -151,58 +151,51 @@ export default function Home() {
           transition={{ duration: 1, ease: "easeOut" }}
           className="container relative z-10 px-4 mx-auto text-center"
         >
-          {/* <motion.h1
-        initial={{ letterSpacing: "0.2em", opacity: 0 }}
-        animate={{ letterSpacing: "0.1em", opacity: 1 }}
-        transition={{ duration: 2, ease: "easeInOut" }}
-        className="text-7xl md:text-9xl font-light tracking-widest mb-12"
-          >
-        NATHAN NEWTON THURBER
-          </motion.h1> */}
 
           <motion.h1 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 2, ease: "easeInOut" }}
-          className="name-animation text-5xl md:text-8xl font- tracking-widest mb-12">
-        NATHAN NEWTON THURBER
+          className="name-animation text-4xl md:text-8xl font- tracking-widest mb-4 md:mb-12"
+          >
+            NATHAN NEWTON THURBER
           </motion.h1>
 
           <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5, duration: 1 }}
-        className="flex flex-col items-center space-y-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 1 }}
+            className="flex flex-col items-center space-y-8"
           >
-        <p className="text-lg md:text-xl text-zinc-400 max-w-md">
-          Developer • Musician • Swimmer
-          <br />
-          Based in Chiang Mai
-        </p>
+            <p className="text-md md:text-xl text-zinc-400 max-w-md">
+              Developer • Musician • Swimmer
+              <br />
+              Based in Chiang Mai
+            </p>
 
-        <div className="flex flex-wrap justify-center gap-6">
-          <Link
-            href="/projects"
-            className="group relative overflow-hidden px-6 py-3 border border-white/10 rounded-full hover:border-white/30 transition-colors duration-300"
-          >
-            <span className="relative z-10 text-sm font-light tracking-wider flex items-center">
-          View Projects{" "}
-          <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </span>
-            <span className="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
-          </Link>
+            <div className="flex flex-wrap justify-center gap-6">
+              <Link
+                href="/projects"
+                className="group relative overflow-hidden px-6 py-3 border border-white/10 rounded-full hover:border-white/30 transition-colors duration-300"
+              >
+                <span className="relative z-10 text-sm font-light tracking-wider flex items-center">
+                  View Projects{" "}
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
+                <span className="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
+              </Link>
 
-          <Link
-            href="/about"
-            className="group relative overflow-hidden px-6 py-3 border border-white/10 rounded-full hover:border-white/30 transition-colors duration-300"
-          >
-            <span className="relative z-10 text-sm font-light tracking-wider">About Me</span>
-            <span className="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
-          </Link>
-        </div>
-        <div className="flex flex-wrap justify-center gap-6">
-          <p className="text-sm md:text-lg text-zinc-400 ">This website is still a work in progress</p>
-        </div>
+              <Link
+                href="/about"
+                className="group relative overflow-hidden px-6 py-3 border border-white/10 rounded-full hover:border-white/30 transition-colors duration-300"
+              >
+                <span className="relative z-10 text-sm font-light tracking-wider">About Me</span>
+                <span className="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
+              </Link>
+            </div>
+            <div className="flex flex-wrap justify-center gap-6">
+              <p className="text-sm md:text-lg text-zinc-400 ">This website is still a work in progress</p>
+            </div>
           </motion.div>
         </motion.div>
 
@@ -216,10 +209,10 @@ export default function Home() {
         <span className="text-s text-zinc-500 mb-2 tracking-widest">SCROLL</span>
         <div className="w-[1px] h-12 bg-gradient-to-b from-white/0 via-white/20 to-white/0">
           <motion.div
-            initial={{ y: 0 }}
-            animate={{ y: [0, 30, 0] }}
-            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 2, ease: "easeInOut" }}
-            className="w-full h-4 bg-white/30"
+        initial={{ y: 0 }}
+        animate={{ y: [0, 30, 0] }}
+        transition={{ repeat: Number.POSITIVE_INFINITY, duration: 2, ease: "easeInOut" }}
+        className="w-full h-4 bg-white/30"
           />
         </div>
           </div>
@@ -228,7 +221,7 @@ export default function Home() {
 
       {/* Marquee Section */}
       <section className="py-12 bg-[#080808]">
-        <ParallaxText baseVelocity={-1}>DEVELOPER • MUSICIAN • STUDENT • SWIMMER • LEARNER • RESEARCHER • LEADER • STUDENT COUNCIL PRESIDENT • MAKER • CLUB PRESIDENT • DESIGNER • </ParallaxText>
+        <ParallaxText baseVelocity={-2}>DEVELOPER • MUSICIAN • STUDENT • SWIMMER • LEARNER • RESEARCHER • LEADER • STUDENT COUNCIL PRESIDENT • MAKER • CLUB PRESIDENT • DESIGNER • </ParallaxText>
       </section>
 
       {/* About Preview Section */}
@@ -339,12 +332,6 @@ export default function Home() {
 
       {/* Skills */}
       <section className="py-32 bg-[#080808]">
-        {/* Background glow effect */}
-        <div className="absolute inset-0 z-0"></div>
-        {/* Background glow effect */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-purple-500/5 blur-[150px]" />
-        </div>
 
         <div className="container px-4 mx-auto relative z-10">
           <motion.div
@@ -357,7 +344,6 @@ export default function Home() {
         <span className="inline-block text-s tracking-widest text-zinc-500 mb-4">EXPERTISE</span>
         <h2 className="text-4xl md:text-5xl font-light tracking-wide mb-8">Skills & Technologies</h2>
 
-        {/* Category filters */}
         <div className="flex flex-wrap justify-center gap-4 mb-12">
           {["All", "Programming", "Libraries", "Electronics", "Music", "Other"].map((category) => (
             <button
@@ -374,7 +360,6 @@ export default function Home() {
         </div>
           </motion.div>
 
-        {/* Skills grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
           {skills
             .filter(skill => activeFilter === "All" || skill.category === activeFilter)
@@ -1085,15 +1070,6 @@ export default function Home() {
               >
                 GitHub
               </Link>
-              {/* <Link href="/music" className="text-s text-zinc-500 hover:text-white transition-colors duration-300">
-                Music
-              </Link> */}
-              {/* <Link
-                href="/photography"
-                className="text-s text-zinc-500 hover:text-white transition-colors duration-300"
-              >
-                Photography
-              </Link> */}
               <Link href="/contact" className="text-s text-zinc-500 hover:text-white transition-colors duration-300">
                 Contact
               </Link>

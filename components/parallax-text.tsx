@@ -44,7 +44,7 @@ export default function ParallaxText({ children, baseVelocity = 100 }: ParallaxP
       directionFactor.current = 2
       }
 
-      moveBy += directionFactor.current * moveBy * velocityFactor.get() / 2
+      moveBy += directionFactor.current * moveBy * velocityFactor.get() / 4
     }
 
     baseX.set(baseX.get() + moveBy)
