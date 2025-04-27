@@ -125,6 +125,15 @@ export default function Home() {
     };
   }, []);
 
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768)
+    const handleResize = () => setIsMobile(window.innerWidth <= 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   return (
     <div ref={containerRef} className="bg-[#0a0a0a] text-white overflow-hidden">      
       {/* Custom cursor blur */}
@@ -152,14 +161,20 @@ export default function Home() {
           className="container relative z-10 px-4 mx-auto text-center"
         >
 
-          <motion.h1 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 2, ease: "easeInOut" }}
-          className="name-animation text-4xl md:text-8xl font- tracking-widest mb-4 md:mb-12"
-          >
-            NATHAN NEWTON THURBER
-          </motion.h1>
+          {!isMobile ? (
+            <motion.h1 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 2, ease: "easeInOut" }}
+              className="name-animation text-4xl md:text-7xl font-tracking-widest mb-4 md:mb-12"
+            >
+              NATHAN NEWTON THURBER
+            </motion.h1>
+          ) : (
+            <h1 className="text-4xl md:text-8xl font-tracking-widest mb-4 md:mb-12">
+              NATHAN NEWTON THURBER 
+            </h1>
+          )}
 
           <motion.div
             initial={{ opacity: 0 }}
@@ -220,29 +235,31 @@ export default function Home() {
       </section>
 
       {/* Marquee Section */}
-      <section className="py-12 bg-[#080808]">
+      {!isMobile && (
+      <section className="bg-[#080808]">
         <ParallaxText baseVelocity={-2}>DEVELOPER • MUSICIAN • STUDENT • SWIMMER • LEARNER • RESEARCHER • LEADER • STUDENT COUNCIL PRESIDENT • MAKER • CLUB PRESIDENT • DESIGNER • </ParallaxText>
       </section>
+      )}
 
       {/* About Preview Section */}
-      <section className="py-64 bg-[#080808]">
+      <section className="py-48 bg-[#080808]">
         <div className="container px-4 mx-auto">
           <div className="max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.5 }}
               className="mb-16 text-center"
             >
               <span className="inline-block text-s tracking-widest text-zinc-500 mb-4">ABOUT</span>
-              <h2 className="text-5xl md:text-5xl font-light tracking-wide mb-8">Student Developer from Chiang Mai</h2>
-                <p className="text-zinc-400 leading-relaxed">
-                  I'm a 17-year-old student with a passion for technology, science, swimming, and music. From teaching myself 
-                  mathematics and physics to diving into computer science and programming, I've always 
-                  been driven by curiosity and the desire to create and learn. Beyond coding, I enjoy listening to and composing music, 
-                  as well as compete as a regional swimmer in Thailand. 
-                </p>
+              <h2 className="text-4xl md:text-5xl font-light tracking-wide mb-8">Student Developer from Chiang Mai</h2>
+              <p className="text-zinc-400 leading-relaxed">
+                I'm a 17-year-old student with a passion for technology, science, swimming, and music. From teaching myself 
+                mathematics and physics to diving into computer science and programming, I've always 
+                been driven by curiosity and the desire to create and learn. Beyond coding, I enjoy listening to and composing music, 
+                as well as compete as a regional swimmer in Thailand. 
+              </p>
             </motion.div>
 
             <motion.div
@@ -369,8 +386,7 @@ export default function Home() {
                 href={skill.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group p-4 border border-white/10 rounded-lg hover:border-white/30 
-                  transition-colors duration-300 flex items-center space-x-4"
+                className="group p-4 border border-white/10 rounded-lg hover:border-white/30 transition-colors duration-300 flex items-center space-x-4"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
@@ -384,8 +400,7 @@ export default function Home() {
                   </h3>
                   <span className="text-xs text-zinc-500">{skill.category}</span>
                 </div>
-                <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-purple-400 
-                  transition-all duration-300 transform group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-purple-400 transition-all duration-300 transform group-hover:translate-x-1" />
               </motion.a>
             ))}
         </div>
