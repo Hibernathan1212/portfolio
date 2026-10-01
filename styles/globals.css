@@ -89,10 +89,13 @@ body {
 }
 
 @layer base {
-  * {
-    @apply border-border;
+  html, body, #__next {
+    @apply h-full bg-[#0a0a0a];
   }
-  body {
-    @apply bg-background text-foreground;
+  html, body {
+    @apply overflow-x-hidden;
+  }
+  html, body {
+    overscroll-behavior: none;
   }
 }
