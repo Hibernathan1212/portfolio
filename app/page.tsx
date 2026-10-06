@@ -973,7 +973,7 @@ export default function Home() {
         <div className="container px-4 mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-xs text-zinc-500 mb-6 md:mb-0">
-              © {new Date().getFullYear()} • Nathan Thurber
+              © 2026 • Nathan Thurber
             </p>
             <div className="flex space-x-6">
               <a
