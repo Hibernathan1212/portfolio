@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { AnimatePresence, motion } from "framer-motion"
-import { Menu, X } from "lucide-react"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
 
 export default function NavMenu() {
-  const [isOpen, setIsOpen] = useState(false)
-  const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   // Close menu when route changes
   useEffect(() => {
-    setIsOpen(false)
-  }, [pathname])
+    setIsOpen(false);
+  }, [pathname]);
 
   // Prevent scrolling when menu is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset"
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.body.style.overflow = "unset"
-    }
-  }, [isOpen])
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
 
   const menuItems = [
     { name: "Home", path: "/" },
@@ -34,11 +34,9 @@ export default function NavMenu() {
     { name: "Music", path: "/music" },
     { name: "Photography", path: "/photography" },
     { name: "Blog", path: "/blog" },
-    { name: "Notes", path: "/notes" },
-    { name: "Extracurriculars", path: "/extracurriculars" },
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
-  ]
+  ];
 
   return (
     <>
@@ -84,7 +82,9 @@ export default function NavMenu() {
                     <Link
                       href={item.path}
                       className={`text-2xl font-light tracking-wider hover:text-purple-300 transition-colors duration-300 ${
-                        pathname === item.path ? "text-purple-300" : "text-white"
+                        pathname === item.path
+                          ? "text-purple-300"
+                          : "text-white"
                       }`}
                     >
                       {item.name}
@@ -97,6 +97,5 @@ export default function NavMenu() {
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }
-

@@ -1,14 +1,21 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { motion } from "framer-motion"
-import { ArrowLeft, ArrowRight, X, Camera, MapPin, Calendar } from "lucide-react"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import {
+  ArrowLeft,
+  ArrowRight,
+  X,
+  Camera,
+  MapPin,
+  Calendar,
+} from "lucide-react";
 
 export default function PhotographyPage() {
-  const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null)
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   // Photo categories
   const categories = [
@@ -18,7 +25,7 @@ export default function PhotographyPage() {
     { id: "portrait", name: "Portrait" },
     { id: "architecture", name: "Architecture" },
     { id: "nature", name: "Nature" },
-  ]
+  ];
 
   // Photo collection with metadata
   const photos = [
@@ -34,7 +41,8 @@ export default function PhotographyPage() {
     {
       id: 2,
       title: "Sunday Walking Street Market",
-      description: "The vibrant colors and bustling energy of Chiang Mai's famous Sunday night market.",
+      description:
+        "The vibrant colors and bustling energy of Chiang Mai's famous Sunday night market.",
       date: "May 2023",
       location: "Chiang Mai, Thailand",
       src: "/placeholder.svg?height=800&width=800&text=Sunday+Market",
@@ -69,7 +77,8 @@ export default function PhotographyPage() {
     {
       id: 6,
       title: "Tropical Flower Close-up",
-      description: "Macro photography of an exotic tropical flower found in the gardens of Chiang Mai.",
+      description:
+        "Macro photography of an exotic tropical flower found in the gardens of Chiang Mai.",
       date: "January 2023",
       location: "Chiang Mai, Thailand",
       src: "/placeholder.svg?height=800&width=800&text=Tropical+Flower",
@@ -86,7 +95,8 @@ export default function PhotographyPage() {
     {
       id: 8,
       title: "Rice Terraces",
-      description: "The geometric patterns of rice terraces cascading down the hillsides in Northern Thailand.",
+      description:
+        "The geometric patterns of rice terraces cascading down the hillsides in Northern Thailand.",
       date: "October 2022",
       location: "Chiang Rai, Thailand",
       src: "/placeholder.svg?height=800&width=1200&text=Rice+Terraces",
@@ -94,7 +104,8 @@ export default function PhotographyPage() {
     {
       id: 9,
       title: "White Temple",
-      description: "The intricate and otherworldly architecture of Wat Rong Khun (White Temple) in Chiang Rai.",
+      description:
+        "The intricate and otherworldly architecture of Wat Rong Khun (White Temple) in Chiang Rai.",
       date: "September 2022",
       location: "Chiang Rai, Thailand",
       src: "/placeholder.svg?height=800&width=1000&text=White+Temple",
@@ -102,7 +113,8 @@ export default function PhotographyPage() {
     {
       id: 10,
       title: "Street Food Vendor",
-      description: "A candid moment capturing a local street food vendor preparing traditional Thai dishes.",
+      description:
+        "A candid moment capturing a local street food vendor preparing traditional Thai dishes.",
       date: "August 2022",
       location: "Chiang Mai, Thailand",
       src: "/placeholder.svg?height=800&width=800&text=Street+Food+Vendor",
@@ -110,7 +122,8 @@ export default function PhotographyPage() {
     {
       id: 11,
       title: "Elephant Sanctuary",
-      description: "A gentle moment with rescued elephants at an ethical sanctuary near Chiang Mai.",
+      description:
+        "A gentle moment with rescued elephants at an ethical sanctuary near Chiang Mai.",
       date: "July 2022",
       location: "Mae Taeng, Thailand",
       src: "/placeholder.svg?height=800&width=1200&text=Elephant+Sanctuary",
@@ -118,54 +131,59 @@ export default function PhotographyPage() {
     {
       id: 12,
       title: "Student Portrait",
-      description: "A portrait of a local student in traditional dress during a cultural celebration at school.",
+      description:
+        "A portrait of a local student in traditional dress during a cultural celebration at school.",
       date: "June 2022",
       location: "Chiang Mai, Thailand",
       src: "/placeholder.svg?height=800&width=600&text=Student+Portrait",
     },
-  ]
+  ];
 
   // Helper functions for navigation
   const goToNextPhoto = () => {
     if (selectedPhoto !== null && selectedPhoto !== photos.length) {
-      const currentIndex = photos.findIndex((photo) => photo.id === selectedPhoto)
-      const nextIndex = (currentIndex + 1) % photos.length
-      setSelectedPhoto(photos[nextIndex].id)
+      const currentIndex = photos.findIndex(
+        (photo) => photo.id === selectedPhoto,
+      );
+      const nextIndex = (currentIndex + 1) % photos.length;
+      setSelectedPhoto(photos[nextIndex].id);
     }
-  }
+  };
 
   const goToPrevPhoto = () => {
     if (selectedPhoto !== null && selectedPhoto !== 1) {
-      const currentIndex = photos.findIndex((photo) => photo.id === selectedPhoto)
-      const prevIndex = (currentIndex - 1 + photos.length) % photos.length
-      setSelectedPhoto(photos[prevIndex].id)
+      const currentIndex = photos.findIndex(
+        (photo) => photo.id === selectedPhoto,
+      );
+      const prevIndex = (currentIndex - 1 + photos.length) % photos.length;
+      setSelectedPhoto(photos[prevIndex].id);
     }
-  }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (selectedPhoto !== null) {
         if (e.key === "ArrowRight") {
-          goToNextPhoto()
+          goToNextPhoto();
         } else if (e.key === "ArrowLeft") {
-          goToPrevPhoto()
+          goToPrevPhoto();
         } else if (e.key === "Escape") {
-          setSelectedPhoto(null)
+          setSelectedPhoto(null);
         }
       }
-    }
+    };
 
-    document.addEventListener("keydown", handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [selectedPhoto])
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedPhoto]);
 
   // Filter photos based on selected category
   // const filteredPhotos =
   //   activeCategory && activeCategory !== "all" ? photos.filter((photo) => photo.category === activeCategory) : photos
 
-  const filteredPhotos = photos
+  const filteredPhotos = photos;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pt-32 pb-24">
@@ -185,13 +203,17 @@ export default function PhotographyPage() {
           </Link>
 
           <div className="text-center mb-16">
-            <span className="inline-block text-xs tracking-widest text-zinc-500 mb-4">VISUALS</span>
-            <h1 className="text-4xl md:text-5xl font-light tracking-wide">Photography</h1>
+            <span className="inline-block text-xs tracking-widest text-zinc-500 mb-4">
+              VISUALS
+            </span>
+            <h1 className="text-4xl md:text-5xl font-light tracking-wide">
+              Photography
+            </h1>
           </div>
 
           <div className="max-w-3xl mx-auto mb-16">
             <p className="text-zinc-400 leading-relaxed text-center">
-              Photography is a newer hobby of mine, more or less just for fun. These are some of my favorites.
+              Photos will be added soon
             </p>
           </div>
         </motion.div>
@@ -216,38 +238,38 @@ export default function PhotographyPage() {
         </div> */}
 
         {/* Photo Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPhotos.map((photo, index) => (
-            <motion.div
-              key={photo.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group cursor-pointer"
-              onClick={() => setSelectedPhoto(photo.id)}
-            >
-              <div
-                className={`aspect-square bg-zinc-900 relative overflow-hidden rounded-lg`}
-              >
-                <Image
-                  src={photo.src || "/placeholder.svg"}
-                  alt={photo.title}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <div>
-                    <h3 className="font-light text-white">{photo.title}</h3>
-                    <div className="flex items-center text-xs text-zinc-300 mt-1">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      {photo.location}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"> */}
+        {/*   {filteredPhotos.map((photo, index) => ( */}
+        {/*     <motion.div */}
+        {/*       key={photo.id} */}
+        {/*       initial={{ opacity: 0, y: 20 }} */}
+        {/*       animate={{ opacity: 1, y: 0 }} */}
+        {/*       transition={{ duration: 0.5, delay: index * 0.1 }} */}
+        {/*       className="group cursor-pointer" */}
+        {/*       onClick={() => setSelectedPhoto(photo.id)} */}
+        {/*     > */}
+        {/*       <div */}
+        {/*         className={`aspect-square bg-zinc-900 relative overflow-hidden rounded-lg`} */}
+        {/*       > */}
+        {/*         <Image */}
+        {/*           src={photo.src || "/placeholder.svg"} */}
+        {/*           alt={photo.title} */}
+        {/*           fill */}
+        {/*           className="object-cover transition-transform duration-700 group-hover:scale-110" */}
+        {/*         /> */}
+        {/*         <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4"> */}
+        {/*           <div> */}
+        {/*             <h3 className="font-light text-white">{photo.title}</h3> */}
+        {/*             <div className="flex items-center text-xs text-zinc-300 mt-1"> */}
+        {/*               <MapPin className="h-3 w-3 mr-1" /> */}
+        {/*               {photo.location} */}
+        {/*             </div> */}
+        {/*           </div> */}
+        {/*         </div> */}
+        {/*       </div> */}
+        {/*     </motion.div> */}
+        {/*   ))} */}
+        {/* </div> */}
 
         {/* Empty State */}
         {filteredPhotos.length === 0 && (
@@ -274,7 +296,10 @@ export default function PhotographyPage() {
           onClick={() => setSelectedPhoto(null)}
         >
           {/* Close Button */}
-          <button className="absolute top-6 right-6 z-10" onClick={() => setSelectedPhoto(null)}>
+          <button
+            className="absolute top-6 right-6 z-10"
+            onClick={() => setSelectedPhoto(null)}
+          >
             <X className="h-6 w-6" />
           </button>
 
@@ -283,8 +308,8 @@ export default function PhotographyPage() {
             <button
               className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white z-10 p-2"
               onClick={(e) => {
-              e.stopPropagation()
-              goToPrevPhoto()
+                e.stopPropagation();
+                goToPrevPhoto();
               }}
             >
               <ArrowLeft className="h-8 w-8" />
@@ -294,8 +319,8 @@ export default function PhotographyPage() {
             <button
               className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white z-10 p-2"
               onClick={(e) => {
-                e.stopPropagation()
-                goToNextPhoto()
+                e.stopPropagation();
+                goToNextPhoto();
               }}
             >
               <ArrowRight className="h-8 w-8" />
@@ -314,7 +339,9 @@ export default function PhotographyPage() {
                 <div className="relative aspect-auto w-full max-h-[60vh] flex items-center justify-center">
                   <Image
                     src={photos.find((p) => p.id === selectedPhoto)?.src || ""}
-                    alt={photos.find((p) => p.id === selectedPhoto)?.title || ""}
+                    alt={
+                      photos.find((p) => p.id === selectedPhoto)?.title || ""
+                    }
                     width={1200}
                     height={800}
                     className="object-contain max-h-[60vh]"
@@ -322,8 +349,12 @@ export default function PhotographyPage() {
                 </div>
 
                 <div className="mt-6">
-                  <h3 className="text-xl font-light">{photos.find((p) => p.id === selectedPhoto)?.title}</h3>
-                  <p className="text-zinc-400 mt-2">{photos.find((p) => p.id === selectedPhoto)?.description}</p>
+                  <h3 className="text-xl font-light">
+                    {photos.find((p) => p.id === selectedPhoto)?.title}
+                  </h3>
+                  <p className="text-zinc-400 mt-2">
+                    {photos.find((p) => p.id === selectedPhoto)?.description}
+                  </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                     <div className="flex items-center text-sm text-zinc-400">
@@ -342,5 +373,5 @@ export default function PhotographyPage() {
         </motion.div>
       )}
     </div>
-  )
+  );
 }

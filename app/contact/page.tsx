@@ -1,11 +1,18 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { ArrowLeft, Github, Instagram, Mail, Send } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  ArrowLeft,
+  Github,
+  Instagram,
+  Linkedin,
+  Mail,
+  Send,
+} from "lucide-react";
 
 export default function ContactPage() {
   return (
@@ -26,8 +33,12 @@ export default function ContactPage() {
           </Link>
 
           <div className="text-center mb-16">
-            <span className="inline-block text-xs tracking-widest text-zinc-500 mb-4">CONNECT</span>
-            <h1 className="text-4xl md:text-5xl font-light tracking-wide">Get In Touch</h1>
+            <span className="inline-block text-xs tracking-widest text-zinc-500 mb-4">
+              CONNECT
+            </span>
+            <h1 className="text-4xl md:text-5xl font-light tracking-wide">
+              Get In Touch
+            </h1>
           </div>
         </motion.div>
 
@@ -38,20 +49,23 @@ export default function ContactPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <h2 className="text-2xl font-light tracking-wide mb-6">Say Hello</h2>
+              <h2 className="text-2xl font-light tracking-wide mb-6">
+                Say Hello
+              </h2>
               <p className="text-zinc-400 leading-relaxed mb-8">
-                I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
-                Feel free to reach out anytime.
+                I'm always open to discussing new projects, creative ideas, or
+                opportunities to be part of your vision. Feel free to reach out
+                anytime.
               </p>
 
               <div className="space-y-4 mb-8">
                 <div className="flex items-center">
                   <Mail className="h-5 w-5 text-purple-400 mr-3" />
-                  <Link 
-                    href="mailto:nnthurber@icloud.com" 
+                  <Link
+                    href="mailto:nnthurber@icloud.com"
                     className="text-zinc-300 hover:text-purple-400 transition-colors duration-300"
                   >
-                    nnthurber@icloud.com
+                    nathan.n.thurber@gmail.com
                   </Link>
                 </div>
                 <div className="flex items-center">
@@ -60,26 +74,27 @@ export default function ContactPage() {
                     href="https://github.com/hibernathan1212"
                     className="text-zinc-300 hover:text-purple-400 transition-colors duration-300"
                   >
-                    github.com/hibernathan1212
+                    hibernathan1212
                   </Link>
                 </div>
                 <div className="flex items-center">
-                  <Instagram className="h-5 w-5 text-purple-400 mr-3" />
+                  <Linkedin className="h-5 w-5 text-purple-400 mr-3" />
                   <Link
-                    href="https://www.instagram.com/nathant_1212/"
+                    href="https://www.linkedin.com/in/nathan-thurber/"
                     className="text-zinc-300 hover:text-purple-400 transition-colors duration-300"
                   >
-                    @nathant_1212
+                    nathan-thurber
                   </Link>
                 </div>
               </div>
 
-              <p className="text-zinc-500 text-sm">Currently based in Chiang Mai, Thailand</p>
-            </motion.div>  
+              <p className="text-zinc-500 text-sm">
+                Currently based in Swarthmore, PA, USA
+              </p>
+            </motion.div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
-
