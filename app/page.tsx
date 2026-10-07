@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -12,7 +13,6 @@ import {
 } from "framer-motion";
 import {
   ArrowRight,
-  Mail,
   Music,
   Camera,
   BookOpen,
@@ -20,10 +20,14 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import NavMenu from "@/components/nav-menu";
-import ParallaxText from "@/components/parallax-text";
 import FeaturedProject from "@/components/featured-project";
 import TimelineItem from "@/components/timeline-item";
 import { projects } from "./projects/projects-data";
+
+// Only ever rendered on desktop, so don't ship/parse it on phones.
+const ParallaxText = dynamic(() => import("@/components/parallax-text"), {
+  ssr: false,
+});
 
 /* -------------------------------------------------------------------------- */
 /*                                    Data                                    */
@@ -429,14 +433,66 @@ const exploreLinks: {
 const projectSlug = (title: string) => title.replace(/\s+/g, "-");
 
 /* -------------------------------------------------------------------------- */
+/*                         Desktop / mobile switching                         */
+/* -------------------------------------------------------------------------- */
+
+// true  = desktop (>= md): full framer-motion experience, identical to before
+// false = phone, or not yet measured (SSR): static, zero-JS rendering
+const DesktopContext = createContext(false);
+const useDesktop = () => useContext(DesktopContext);
+
+function useIsMobile() {
+  // null = not yet measured (SSR / first render) — avoids hydration mismatch
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  useEffect(() => {
+    // 767px lines up exactly with Tailwind's `md` breakpoint
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return isMobile;
+}
+
+// Shared classes for every section below the hero. On phones,
+// content-visibility:auto lets Safari skip layout + paint for sections that
+// aren't near the viewport — the biggest win for a long single-layer page.
+const SECTION =
+  "py-32 bg-[#080808] max-md:[content-visibility:auto] max-md:[contain-intrinsic-size:auto_900px]";
+
+/* -------------------------------------------------------------------------- */
 /*                              Small UI helpers                              */
 /* -------------------------------------------------------------------------- */
 
-const fadeUp = {
-  initial: { opacity: 0, y: 20 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-100px" },
-} as const;
+// Desktop: the same whileInView fade-up as before.
+// Mobile/SSR: a plain div — visible immediately, never animated.
+// The swap happens on mount, below the fold, so it's never visible.
+function Reveal({
+  children,
+  className,
+  delay = 0,
+  duration = 0.8,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  duration?: number;
+}) {
+  const desktop = useDesktop();
+  if (!desktop) return <div className={className}>{children}</div>;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration, delay }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 function SectionHeading({
   eyebrow,
@@ -448,16 +504,12 @@ function SectionHeading({
   className?: string;
 }) {
   return (
-    <motion.div
-      {...fadeUp}
-      transition={{ duration: 0.8 }}
-      className={`text-center ${className}`}
-    >
+    <Reveal className={`text-center ${className}`}>
       <span className="inline-block text-xs tracking-widest text-zinc-500 mb-4">
         {eyebrow}
       </span>
       <h2 className="text-4xl md:text-5xl font-light tracking-wide">{title}</h2>
-    </motion.div>
+    </Reveal>
   );
 }
 
@@ -488,20 +540,21 @@ function OutlineLink({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                    Page                                    */
-/* -------------------------------------------------------------------------- */
+// `new Date()` during render breaks prerendering with Cache Components, so the
+// year is read after mount. Server and client both render 2026 initially.
+function CopyrightYear() {
+  const [year, setYear] = useState(2026);
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
+  return <>{year}</>;
+}
 
-export default function Home() {
-  const heroRef = useRef<HTMLElement>(null);
-  const nameRef = useRef<HTMLHeadingElement>(null);
+/* ----------------------------- Desktop-only bits -------------------------- */
 
-  // null = not yet measured (SSR / first render) — avoids hydration mismatch
-  const [isMobile, setIsMobile] = useState<boolean | null>(null);
-  const [activeFilter, setActiveFilter] = useState<SkillFilter>("All");
-
-  /* ---------------------------- Cursor glow ----------------------------- */
-  // Motion values instead of state: no page re-render on every mousemove
+// Cursor-following glow. Only mounted on desktop, so the mousemove listener
+// and the spring never exist on phones.
+function CursorGlow() {
   const cursorX = useMotionValue(-300);
   const cursorY = useMotionValue(-300);
   const glowX = useSpring(cursorX, { stiffness: 150, damping: 20, mass: 0.5 });
@@ -512,31 +565,124 @@ export default function Home() {
       cursorX.set(e.clientX - 150);
       cursorY.set(e.clientY - 150);
     };
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [cursorX, cursorY]);
 
-  /* --------------------------- Mobile detection -------------------------- */
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 768px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
+  return (
+    <motion.div
+      aria-hidden
+      style={{ x: glowX, y: glowY }}
+      className="fixed top-0 left-0 w-[300px] h-[300px] bg-purple-500/20 rounded-full blur-[100px] pointer-events-none z-0"
+    />
+  );
+}
 
-  /* --------------------------- Hero scroll fade -------------------------- */
+// Scroll-linked hero glow (blur + scale/fade), exactly as before. Desktop only.
+function DesktopHeroGlow({
+  target,
+}: {
+  target: React.RefObject<HTMLElement | null>;
+}) {
   const { scrollYProgress } = useScroll({
-    target: heroRef,
+    target,
     offset: ["start start", "end start"],
   });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.6], [1, 0.8]);
+  const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.6], [1, 0.8]);
+
+  return (
+    <motion.div
+      style={{ opacity, scale }}
+      className="absolute inset-0 z-0 pointer-events-none"
+    >
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(800px,80vw)] h-[min(800px,80vw)] rounded-full bg-purple-500/10 blur-[150px]" />
+    </motion.div>
+  );
+}
+
+// Static glow for phones: a radial gradient painted once, never animated.
+function StaticHeroGlow() {
+  return (
+    <div className="absolute inset-0 z-0 pointer-events-none">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100vw] h-[100vw] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.14)_0%,rgba(168,85,247,0.06)_35%,rgba(168,85,247,0.02)_60%,transparent_75%)]" />
+    </div>
+  );
+}
+
+// Desktop keeps `layout` + enter animation; phones get a plain <a>.
+function SkillCard({ skill }: { skill: Skill }) {
+  const desktop = useDesktop();
+
+  const className =
+    "group p-4 border border-white/10 rounded-lg hover:border-white/30 transition-colors duration-300 flex items-center space-x-4";
+
+  const content = (
+    <>
+      <div className="w-10 h-10 shrink-0 rounded-lg bg-white/5 p-2 group-hover:bg-white/10 transition-colors duration-300">
+        <Image
+          src={skill.logo}
+          alt={skill.name}
+          width={40}
+          height={40}
+          className="w-full h-full object-contain"
+        />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-light tracking-wide truncate group-hover:text-purple-400 transition-colors duration-300">
+          {skill.name}
+        </h3>
+        <span className="text-xs text-zinc-500">{skill.category}</span>
+      </div>
+      <ArrowRight className="h-4 w-4 shrink-0 text-zinc-500 group-hover:text-purple-400 transition-all duration-300 group-hover:translate-x-1" />
+    </>
+  );
+
+  if (!desktop) {
+    return (
+      <a
+        href={skill.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <motion.a
+      href={skill.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={className}
+    >
+      {content}
+    </motion.a>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                    Page                                    */
+/* -------------------------------------------------------------------------- */
+
+export default function Home() {
+  const heroRef = useRef<HTMLElement>(null);
+  const nameRef = useRef<HTMLHeadingElement>(null);
+
+  const isMobile = useIsMobile();
+  const desktop = isMobile === false;
+
+  const [activeFilter, setActiveFilter] = useState<SkillFilter>("All");
 
   /* -------------------------- Name scramble effect ----------------------- */
   useEffect(() => {
-    // Only run on desktop, and only once we actually know we're on desktop
-    if (isMobile !== false) return;
+    if (!desktop) return;
     const el = nameRef.current;
     if (!el) return;
 
@@ -560,7 +706,7 @@ export default function Home() {
       window.clearInterval(id);
       el.textContent = NAME;
     };
-  }, [isMobile]);
+  }, [desktop]);
 
   const filteredSkills =
     activeFilter === "All"
@@ -568,432 +714,360 @@ export default function Home() {
       : skills.filter((skill) => skill.category === activeFilter);
 
   return (
-    <div className="bg-[#0a0a0a] text-white overflow-x-hidden">
-      {/* Cursor glow (desktop only) */}
-      <motion.div
-        aria-hidden
-        style={{ x: glowX, y: glowY }}
-        className="fixed top-0 left-0 w-[300px] h-[300px] bg-purple-500/20 rounded-full blur-[100px] pointer-events-none z-0 hidden md:block"
-      />
+    <DesktopContext.Provider value={desktop}>
+      {/* overflow-x-clip clips without creating a scroll container */}
+      <div className="bg-[#0a0a0a] text-white overflow-x-clip">
+        {desktop && <CursorGlow />}
 
-      <NavMenu />
+        <NavMenu />
 
-      {/* ------------------------------ Hero ------------------------------ */}
-      <section
-        ref={heroRef}
-        className="relative h-screen bg-[#080808] flex items-center justify-center"
-      >
-        <motion.div
-          style={{ opacity: heroOpacity, scale: heroScale }}
-          className="absolute inset-0 z-0 pointer-events-none"
+        {/* ------------------------------ Hero ------------------------------ */}
+        {/* Desktop: h-screen exactly as before.
+            Mobile: 100svh — static, unlike dvh it does NOT re-layout the whole
+            page every frame while the Safari toolbar animates. */}
+        <section
+          ref={heroRef}
+          className="relative min-h-[100svh] md:min-h-0 md:h-screen max-md:overflow-hidden bg-[#080808] flex items-center justify-center"
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(800px,80vw)] h-[min(800px,80vw)] rounded-full bg-purple-500/10 blur-[150px]" />
-        </motion.div>
+          {desktop ? <DesktopHeroGlow target={heroRef} /> : <StaticHeroGlow />}
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="container relative z-10 px-4 mx-auto text-center"
-        >
-          <motion.h1
-            ref={nameRef}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 2, ease: "easeInOut" }}
-            className="text-4xl md:text-7xl tracking-widest mb-4 md:mb-12"
-          >
-            {NAME}
-          </motion.h1>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className="flex flex-col items-center space-y-8"
-          >
-            <p className="text-base md:text-xl text-zinc-400 max-w-md">
-              Developer • Musician • Swimmer
-              <br />
-              Math & CS @ Swarthmore College, PA
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-6">
-              <OutlineLink href="/projects">View Projects</OutlineLink>
-              <OutlineLink href="/about" arrow={false}>
-                About Me
-              </OutlineLink>
-            </div>
-
-            <p className="text-sm md:text-lg text-zinc-400">
-              This website is still a work in progress
-            </p>
-          </motion.div>
-        </motion.div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          transition={{ delay: 1.5, duration: 1 }}
-          className="absolute bottom-12 left-0 right-0 flex justify-center pointer-events-none"
-        >
-          <div className="flex flex-col items-center">
-            <span className="text-xs text-zinc-500 mb-2 tracking-widest">
-              SCROLL
-            </span>
-            <div className="w-px h-12 bg-gradient-to-b from-white/0 via-white/20 to-white/0">
-              <motion.div
-                animate={{ y: [0, 30, 0] }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 2,
-                  ease: "easeInOut",
-                }}
-                className="w-full h-4 bg-white/30"
-              />
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ---------------------------- Marquee ----------------------------- */}
-      {isMobile === false && (
-        <section className="bg-[#080808]">
-          <ParallaxText baseVelocity={-2}>
-            DEVELOPER • MUSICIAN • STUDENT • SWIMMER • LEARNER • RESEARCHER •
-            LEADER • STUDENT COUNCIL PRESIDENT • MAKER • CLUB PRESIDENT •
-            DESIGNER •{" "}
-          </ParallaxText>
-        </section>
-      )}
-
-      {/* ------------------------- About preview -------------------------- */}
-      <section className="py-48 bg-[#080808]">
-        <div className="container px-4 mx-auto">
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              {...fadeUp}
-              transition={{ duration: 0.5 }}
-              className="mb-16 text-center"
+          {/* Hero entrance uses CSS keyframes (globals.css): identical look to
+              the old framer-motion version, but visible before hydration and
+              free on phones. */}
+          <div className="hero-anim animate-[fade-up_1s_ease-out_both] container relative z-10 px-4 mx-auto text-center">
+            <h1
+              ref={nameRef}
+              className="hero-anim animate-[fade-in_2s_ease-in-out_both] text-4xl md:text-7xl tracking-widest mb-4 md:mb-12"
             >
-              <span className="inline-block text-xs tracking-widest text-zinc-500 mb-4">
-                ABOUT
-              </span>
-              <h2 className="text-4xl md:text-5xl font-light tracking-wide mb-8">
-                Student Developer from Chiang Mai
-              </h2>
-              <p className="text-zinc-400 leading-relaxed">
-                I&apos;m an undergrad student with a passion for technology,
-                science, swimming, and music. From teaching myself mathematics
-                and physics to diving into computer science and programming,
-                I&apos;ve always been driven by curiosity and the desire to
-                create and learn, and to understand how things work at a
-                fundamental level. Beyond coding, I enjoy listening to and
-                composing music, as well as previously competing as a regional
-                swimmer in Thailand.
+              {NAME}
+            </h1>
+
+            <div className="hero-anim animate-[fade-in_1s_ease-out_0.5s_both] flex flex-col items-center space-y-8">
+              <p className="text-base md:text-xl text-zinc-400 max-w-md">
+                Developer • Musician • Swimmer
+                <br />
+                Math & CS @ Swarthmore College, PA
               </p>
-            </motion.div>
 
-            <motion.div
-              {...fadeUp}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="flex justify-center"
-            >
-              <OutlineLink href="/about">More About Me</OutlineLink>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+              <div className="flex flex-wrap justify-center gap-6">
+                <OutlineLink href="/projects">View Projects</OutlineLink>
+                <OutlineLink href="/about" arrow={false}>
+                  About Me
+                </OutlineLink>
+              </div>
 
-      {/* ----------------------- Featured projects ------------------------ */}
-      <section className="py-32 bg-[#080808]">
-        <div className="container px-4 mx-auto">
-          <SectionHeading eyebrow="SELECTED WORK" title="Projects" />
-
-          <div className="space-y-32">
-            {projects.slice(0, 3).map((project, i) => (
-              <FeaturedProject
-                key={project.title}
-                number={String(i + 1).padStart(2, "0")}
-                title={project.title}
-                description={project.overview}
-                tags={project.technologies}
-                image={project.image}
-                link={`/projects/${projectSlug(project.title)}`}
-                direction={i % 2 === 0 ? "right" : "left"}
-              />
-            ))}
-          </div>
-
-          <motion.div
-            {...fadeUp}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="mt-24 text-center"
-          >
-            <Link
-              href="/projects"
-              className="inline-flex items-center text-sm text-zinc-400 hover:text-white transition-colors duration-300"
-            >
-              View All Projects <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ------------------------------ Skills ---------------------------- */}
-      <section className="py-32 bg-[#080808]">
-        <div className="container px-4 mx-auto relative z-10">
-          <motion.div
-            {...fadeUp}
-            transition={{ duration: 0.8 }}
-            className="mb-16 text-center"
-          >
-            <span className="inline-block text-xs tracking-widest text-zinc-500 mb-4">
-              EXPERTISE
-            </span>
-            <h2 className="text-4xl md:text-5xl font-light tracking-wide mb-8">
-              Skills &amp; Technologies
-            </h2>
-
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
-              {SKILL_FILTERS.map((category) => (
-                <button
-                  key={category}
-                  type="button"
-                  aria-pressed={activeFilter === category}
-                  onClick={() => setActiveFilter(category)}
-                  className={`px-6 py-2 text-sm border rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50 ${
-                    activeFilter === category
-                      ? "border-purple-500 text-purple-400"
-                      : "border-white/10 hover:border-white/30"
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
+              <p className="text-sm md:text-lg text-zinc-400">
+                This website is still a work in progress
+              </p>
             </div>
-          </motion.div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
-            {filteredSkills.map((skill) => (
-              <motion.a
-                key={skill.name}
-                href={skill.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="group p-4 border border-white/10 rounded-lg hover:border-white/30 transition-colors duration-300 flex items-center space-x-4"
-              >
-                <div className="w-10 h-10 shrink-0 rounded-lg bg-white/5 p-2 group-hover:bg-white/10 transition-colors duration-300">
-                  <Image
-                    src={skill.logo}
-                    alt={skill.name}
-                    width={40}
-                    height={40}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-light tracking-wide truncate group-hover:text-purple-400 transition-colors duration-300">
-                    {skill.name}
-                  </h3>
-                  <span className="text-xs text-zinc-500">
-                    {skill.category}
-                  </span>
-                </div>
-                <ArrowRight className="h-4 w-4 shrink-0 text-zinc-500 group-hover:text-purple-400 transition-all duration-300 group-hover:translate-x-1" />
-              </motion.a>
-            ))}
           </div>
-        </div>
-      </section>
 
-      {/* ---------------------------- Experience -------------------------- */}
-      <section className="py-32 bg-[#080808]">
-        <div className="container px-4 mx-auto">
-          <SectionHeading eyebrow="EXPERIENCE" title="My Experiences" />
+          {/* Scroll indicator */}
+          <div className="hero-anim animate-[fade-in-half_1s_ease-out_1.5s_both] absolute bottom-12 left-0 right-0 flex justify-center pointer-events-none">
+            <div className="flex flex-col items-center">
+              <span className="text-xs text-zinc-500 mb-2 tracking-widest">
+                SCROLL
+              </span>
+              <div className="w-px h-12 bg-gradient-to-b from-white/0 via-white/20 to-white/0">
+                <div className="hero-anim animate-[scroll-dot_2s_ease-in-out_infinite] w-full h-4 bg-white/30" />
+              </div>
+            </div>
+          </div>
+        </section>
 
-          <div className="max-w-3xl mx-auto">
-            <div className="relative border-l border-white/10 pl-8 ml-4 md:ml-0">
-              {timeline.map((item) => (
-                <TimelineItem
-                  key={`${item.year}-${item.title}`}
-                  year={item.year}
-                  title={item.title}
-                  description={item.description}
+        {/* ---------------------------- Marquee ----------------------------- */}
+        {desktop && (
+          <section className="bg-[#080808]">
+            <ParallaxText baseVelocity={-2}>
+              DEVELOPER • MUSICIAN • STUDENT • SWIMMER • LEARNER • RESEARCHER •
+              LEADER • STUDENT COUNCIL PRESIDENT • MAKER • CLUB PRESIDENT •
+              DESIGNER •{" "}
+            </ParallaxText>
+          </section>
+        )}
+
+        {/* ------------------------- About preview -------------------------- */}
+        <section className={`${SECTION} md:py-48`}>
+          <div className="container px-4 mx-auto">
+            <div className="max-w-4xl mx-auto">
+              <Reveal duration={0.5} className="mb-16 text-center">
+                <span className="inline-block text-xs tracking-widest text-zinc-500 mb-4">
+                  ABOUT
+                </span>
+                <h2 className="text-4xl md:text-5xl font-light tracking-wide mb-8">
+                  Student Developer from Chiang Mai
+                </h2>
+                <p className="text-zinc-400 leading-relaxed">
+                  I&apos;m an undergrad student with a passion for technology,
+                  science, swimming, and music. From teaching myself mathematics
+                  and physics to diving into computer science and programming,
+                  I&apos;ve always been driven by curiosity and the desire to
+                  create and learn, and to understand how things work at a
+                  fundamental level. Beyond coding, I enjoy listening to and
+                  composing music, as well as previously competing as a regional
+                  swimmer in Thailand.
+                </p>
+              </Reveal>
+
+              <Reveal delay={0.3} className="flex justify-center">
+                <OutlineLink href="/about">More About Me</OutlineLink>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        {/* ----------------------- Featured projects ------------------------ */}
+        <section className={SECTION}>
+          <div className="container px-4 mx-auto">
+            <SectionHeading eyebrow="SELECTED WORK" title="Projects" />
+
+            <div className="space-y-32">
+              {projects.slice(0, 3).map((project, i) => (
+                <FeaturedProject
+                  key={project.title}
+                  number={String(i + 1).padStart(2, "0")}
+                  title={project.title}
+                  description={project.overview}
+                  tags={project.technologies}
+                  image={project.image}
+                  link={`/projects/${projectSlug(project.title)}`}
+                  direction={i % 2 === 0 ? "right" : "left"}
                 />
               ))}
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ------------------------- Current projects ----------------------- */}
-      <section className="py-32 bg-[#080808]">
-        <div className="container px-4 mx-auto">
-          <SectionHeading eyebrow="WORK IN PROGRESS" title="Current Projects" />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {currentProjects.map((project, i) => (
-              <motion.div
-                key={project.title}
-                {...fadeUp}
-                transition={{ duration: 0.8, delay: 0.1 * (i + 1) }}
-                className="group"
-              >
-                <div className="aspect-video bg-zinc-900 mb-6 overflow-hidden rounded-lg relative">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-purple-400">In Development</span>
-                      <span className="text-zinc-400">
-                        {project.progress}% Complete
-                      </span>
-                    </div>
-                    <div className="w-full h-1 bg-white/10 mt-2 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-purple-500 rounded-full transition-[width] duration-700"
-                        style={{ width: `${project.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <h3 className="text-xl font-light tracking-wide mb-2 group-hover:text-purple-300 transition-colors duration-300">
-                  {project.title}
-                </h3>
-                <p className="text-zinc-400 mb-4">{project.description}</p>
-                <div className="flex flex-wrap gap-2">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 bg-white/5 rounded-full text-xs"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ----------------------- Awards & Achievements --------------------- */}
-      <section className="py-32 bg-[#080808]">
-        <div className="container px-4 mx-auto">
-          <SectionHeading eyebrow="RECOGNITION" title="Awards & Achievements" />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {awards.map((award, i) => (
-              <motion.div
-                key={award.title}
-                {...fadeUp}
-                transition={{ duration: 0.8, delay: 0.1 * ((i % 3) + 1) }}
-                className="p-8 border border-white/5 rounded-lg hover:border-white/20 transition-colors duration-500 group"
-              >
-                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:bg-purple-500/20 transition-colors duration-300">
-                  <Award className="h-6 w-6 text-purple-400" />
-                </div>
-                <h3 className="text-xl font-light tracking-wide mb-2">
-                  {award.title}
-                </h3>
-                <p className="text-zinc-500 mb-4">{award.subtitle}</p>
-                <p className="text-zinc-400">{award.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------ Explore --------------------------- */}
-      <section className="py-32 bg-[#080808]">
-        <div className="container px-4 mx-auto">
-          <SectionHeading eyebrow="EXPLORE" title="Discover More" />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {exploreLinks.map(({ href, title, description, icon: Icon }, i) => (
-              <motion.div
-                key={href}
-                {...fadeUp}
-                transition={{ duration: 0.8, delay: 0.1 * ((i % 3) + 1) }}
-              >
-                <Link
-                  href={href}
-                  className="group relative block aspect-[1.6] overflow-hidden rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
-                >
-                  <div className="absolute inset-0 bg-zinc-900 group-hover:scale-110 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30 z-10" />
-                  <div className="absolute inset-0 flex flex-col justify-end p-8 z-20">
-                    <Icon className="h-8 w-8 text-purple-400 mb-4" />
-                    <h3 className="text-2xl font-light tracking-wide mb-2 transition-colors duration-300 group-hover:text-purple-400">
-                      {title}
-                    </h3>
-                    <p className="text-zinc-400 mb-6">{description}</p>
-                    <div className="inline-flex items-center text-sm text-zinc-400 group-hover:text-white transition-colors duration-300">
-                      Discover{" "}
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ---------------------------- Contact CTA ------------------------- */}
-      <section className="py-32 bg-[#080808]">
-        <div className="container px-4 mx-auto">
-          <motion.div
-            {...fadeUp}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl mx-auto text-center mb-16"
-          >
-            <span className="inline-block text-xs tracking-widest text-zinc-500 mb-4">
-              GET IN TOUCH
-            </span>
-            <h2 className="text-4xl font-light tracking-wide mb-8">Contact</h2>
-            <p className="text-zinc-400 mb-12 leading-relaxed">
-              I&apos;m open to working on and discussing new projects,
-              contributing to your vision, and helping in any way I can.
-            </p>
-            <OutlineLink href="/contact" className="px-8 py-4">
-              Contact Me
-            </OutlineLink>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ------------------------------ Footer ---------------------------- */}
-      <footer className="py-12 border-t border-white/5 bg-[#080808]">
-        <div className="container px-4 mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-xs text-zinc-500 mb-6 md:mb-0">
-              © 2026 • Nathan Thurber
-            </p>
-            <div className="flex space-x-6">
-              <a
-                href="https://github.com/hibernathan1212"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-zinc-500 hover:text-white transition-colors duration-300"
-              >
-                GitHub
-              </a>
+            <Reveal delay={0.3} className="mt-24 text-center">
               <Link
-                href="/contact"
-                className="text-xs text-zinc-500 hover:text-white transition-colors duration-300"
+                href="/projects"
+                className="inline-flex items-center text-sm text-zinc-400 hover:text-white transition-colors duration-300"
               >
-                Contact
+                View All Projects <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ------------------------------ Skills ---------------------------- */}
+        <section className={SECTION}>
+          <div className="container px-4 mx-auto relative z-10">
+            <Reveal className="mb-16 text-center">
+              <span className="inline-block text-xs tracking-widest text-zinc-500 mb-4">
+                EXPERTISE
+              </span>
+              <h2 className="text-4xl md:text-5xl font-light tracking-wide mb-8">
+                Skills &amp; Technologies
+              </h2>
+
+              <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-12">
+                {SKILL_FILTERS.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    aria-pressed={activeFilter === category}
+                    onClick={() => setActiveFilter(category)}
+                    className={`px-5 md:px-6 py-2 text-sm border rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50 ${
+                      activeFilter === category
+                        ? "border-purple-500 text-purple-400"
+                        : "border-white/10 hover:border-white/30"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </Reveal>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+              {filteredSkills.map((skill) => (
+                <SkillCard key={skill.name} skill={skill} />
+              ))}
             </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        </section>
+
+        {/* ---------------------------- Experience -------------------------- */}
+        <section className={SECTION}>
+          <div className="container px-4 mx-auto">
+            <SectionHeading eyebrow="EXPERIENCE" title="My Experiences" />
+
+            <div className="max-w-3xl mx-auto">
+              <div className="relative border-l border-white/10 pl-8 ml-4 md:ml-0">
+                {timeline.map((item) => (
+                  <TimelineItem
+                    key={`${item.year}-${item.title}`}
+                    year={item.year}
+                    title={item.title}
+                    description={item.description}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ------------------------- Current projects ----------------------- */}
+        <section className={SECTION}>
+          <div className="container px-4 mx-auto">
+            <SectionHeading
+              eyebrow="WORK IN PROGRESS"
+              title="Current Projects"
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {currentProjects.map((project, i) => (
+                <Reveal
+                  key={project.title}
+                  delay={0.1 * (i + 1)}
+                  className="group"
+                >
+                  <div className="aspect-video bg-zinc-900 mb-6 overflow-hidden rounded-lg relative">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-purple-400">In Development</span>
+                        <span className="text-zinc-400">
+                          {project.progress}% Complete
+                        </span>
+                      </div>
+                      <div className="w-full h-1 bg-white/10 mt-2 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-purple-500 rounded-full"
+                          style={{ width: `${project.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-light tracking-wide mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                    {project.title}
+                  </h3>
+                  <p className="text-zinc-400 mb-4">{project.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {project.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-3 py-1 bg-white/5 rounded-full text-xs"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ----------------------- Awards & Achievements --------------------- */}
+        <section className={SECTION}>
+          <div className="container px-4 mx-auto">
+            <SectionHeading
+              eyebrow="RECOGNITION"
+              title="Awards & Achievements"
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+              {awards.map((award, i) => (
+                <Reveal
+                  key={award.title}
+                  delay={0.1 * ((i % 3) + 1)}
+                  className="p-8 border border-white/5 rounded-lg hover:border-white/20 transition-colors duration-500 group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:bg-purple-500/20 transition-colors duration-300">
+                    <Award className="h-6 w-6 text-purple-400" />
+                  </div>
+                  <h3 className="text-xl font-light tracking-wide mb-2">
+                    {award.title}
+                  </h3>
+                  <p className="text-zinc-500 mb-4">{award.subtitle}</p>
+                  <p className="text-zinc-400">{award.description}</p>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ------------------------------ Explore --------------------------- */}
+        <section className={SECTION}>
+          <div className="container px-4 mx-auto">
+            <SectionHeading eyebrow="EXPLORE" title="Discover More" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {exploreLinks.map(
+                ({ href, title, description, icon: Icon }, i) => (
+                  <Reveal key={href} delay={0.1 * ((i % 3) + 1)}>
+                    <Link
+                      href={href}
+                      className="group relative block aspect-[1.6] overflow-hidden rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
+                    >
+                      <div className="absolute inset-0 bg-zinc-900 md:group-hover:scale-110 md:transition-transform md:duration-700" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30 z-10" />
+                      <div className="absolute inset-0 flex flex-col justify-end p-8 z-20">
+                        <Icon className="h-8 w-8 text-purple-400 mb-4" />
+                        <h3 className="text-2xl font-light tracking-wide mb-2 transition-colors duration-300 group-hover:text-purple-400">
+                          {title}
+                        </h3>
+                        <p className="text-zinc-400 mb-6">{description}</p>
+                        <div className="inline-flex items-center text-sm text-zinc-400 group-hover:text-white transition-colors duration-300">
+                          Discover{" "}
+                          <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                        </div>
+                      </div>
+                    </Link>
+                  </Reveal>
+                ),
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* ---------------------------- Contact CTA ------------------------- */}
+        <section className={SECTION}>
+          <div className="container px-4 mx-auto">
+            <Reveal className="max-w-4xl mx-auto text-center mb-16">
+              <span className="inline-block text-xs tracking-widest text-zinc-500 mb-4">
+                GET IN TOUCH
+              </span>
+              <h2 className="text-4xl font-light tracking-wide mb-8">
+                Contact
+              </h2>
+              <p className="text-zinc-400 mb-12 leading-relaxed">
+                I&apos;m open to working on and discussing new projects,
+                contributing to your vision, and helping in any way I can.
+              </p>
+              <OutlineLink href="/contact" className="px-8 py-4">
+                Contact Me
+              </OutlineLink>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ------------------------------ Footer ---------------------------- */}
+        <footer className="py-12 border-t border-white/5 bg-[#080808]">
+          <div className="container px-4 mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-xs text-zinc-500 mb-6 md:mb-0">
+                © <CopyrightYear /> • Nathan Thurber
+              </p>
+              <div className="flex space-x-6">
+                <a
+                  href="https://github.com/hibernathan1212"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-zinc-500 hover:text-white transition-colors duration-300"
+                >
+                  GitHub
+                </a>
+                <Link
+                  href="/contact"
+                  className="text-xs text-zinc-500 hover:text-white transition-colors duration-300"
+                >
+                  Contact
+                </Link>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </DesktopContext.Provider>
   );
 }
